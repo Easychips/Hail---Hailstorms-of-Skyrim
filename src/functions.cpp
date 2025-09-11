@@ -108,9 +108,7 @@ RE::TESObjectREFR* CreateActivator(RE::TESObjectREFR* caster, RE::TESBoundObject
         logger::error("CreatePersistentActivator: Failed to place activator");
         return nullptr;
     }
-
-    // logger::info("CreatePersistentActivator: Created activator at initial location");
-    return ref.get();  // raw pointer for reuse
+    return ref.get(); // raw pointer
 }
 
 void MoveActivatorRandomly(RE::TESObjectREFR* player, RE::TESObjectREFR* activatorRef) {
@@ -120,10 +118,6 @@ void MoveActivatorRandomly(RE::TESObjectREFR* player, RE::TESObjectREFR* activat
     }
 
     const auto casterPos = player->GetPosition();
-    /* if (!std::isfinite(casterPos.x) || !std::isfinite(casterPos.y) || !std::isfinite(casterPos.z)) {
-        logger::error("MoveActivatorRandomly: Invalid caster position.");
-        return false;
-    }*/
 
     float posX = casterPos.x + RandomFloat(-fPOSRandom, fPOSRandom);
     float posY = casterPos.y + RandomFloat(-fPOSRandom, fPOSRandom);
@@ -137,6 +131,8 @@ void MoveActivatorRandomly(RE::TESObjectREFR* player, RE::TESObjectREFR* activat
     activatorRef->SetPosition(posX, posY, posZ);
 }
 
+//just resets the quest in turn filling the aliases and in turn gives npcs packages to run to inn or home
+
 void QuestMaintnence() {
     if (HailData::hailQuest) {
         if (HailData::hailQuest->IsRunning()) {
@@ -148,6 +144,7 @@ void QuestMaintnence() {
     }
 }
 
+// This function iterates through high proceess list actors and makes them say a hail reaction line. 
 
 void SayAOE() {
     logger::info("ApplyPackage started.");
@@ -202,13 +199,11 @@ void SayAOE() {
           if (RandomFloat() >= 50.0) {
                 PapyrusSay(actorAsObject, HailData::hailTopic, nullptr, false);
           }
-
-          //  logger::info("Putting package inn on actor with package ptr:");
        
         }
     }
 
-        // logger::info("ApplyPackage finished.");
+
 }  
 
 
@@ -257,14 +252,13 @@ void IniParser()
                 }
             } catch (const std::exception& e) {
                 logger::error("Failed to parse INI line [{}]: {}", line, e.what());
-                // leave default value
 
                     
             }
            
         }
     }
-    logger::info("performanc mode = {}", g_PerformanceMode);
+  
  }
 
 

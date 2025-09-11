@@ -14,25 +14,18 @@ namespace HailData {
     RE::TESGlobal* hailGlobal = nullptr;
 
     RE::TESQuest* hailQuest = nullptr;
-   // RE::TESPackage* hailGoInnPackage = nullptr;
-   // RE::TESPackage* hailGoHomePackage = nullptr;
-   // RE::TESPackage* hailChildGoHomePackage = nullptr;
+
     RE::TESForm* activatorObject = nullptr;
 
-// RE::BGSListForm* HailGoHomeIgnoreFormList = nullptr;
-
-    RE::FormID tamrielFormID = 0x0000003C;
+    /*RE::FormID tamrielFormID = 0x0000003C;
     RE::FormID solitudeWorld = 0x00037EDF;
     RE::FormID markarthWorld = 0x00016D71;
     RE::FormID whiterunWorld = 0x0001A26F;
-    RE::FormID riftenWorld = 0x00016BB4;
+    RE::FormID riftenWorld = 0x00016BB4; */
 
     std::vector<RE::FormID> appropriateWorldSpaces = {tamrielFormID, solitudeWorld, markarthWorld, whiterunWorld,
                                                       riftenWorld};
-
     RE::TESTopic* hailTopic = nullptr;
-
-
 
     RE::TESFaction* currentFollowerFaction = nullptr;
 
@@ -63,11 +56,6 @@ namespace HailData {
         hailQuest = dataHandler->LookupForm<RE::TESQuest>(0xD7D, "Hail.esp");
 
        //  indoorHailLP = dataHandler->LookupForm<RE::BGSSoundDescriptor>(0x42D, "Hail.esp"); //
-
-      //  hailGoHomePackage = dataHandler->LookupForm<RE::TESPackage>(0xD78, "Hail.esp");
-      //  hailChildGoHomePackage = dataHandler->LookupForm<RE::TESPackage>(0xD79, "Hail.esp");
-      //  hailGoInnPackage = dataHandler->LookupForm<RE::TESPackage>(0xD7B, "Hail.esp");
-        //HailGoHomeIgnoreFormList = dataHandler->LookupForm<RE::BGSListForm>(0xD7F, "Hail.esp");
 
         hailTopic  = RE::TESForm::LookupByID<RE::TESTopic>(0x00011111);
      
@@ -101,4 +89,3 @@ namespace HailData {
 
 }
 
-// !HailGoHomeIgnoreFormList || !currentFollowerFaction

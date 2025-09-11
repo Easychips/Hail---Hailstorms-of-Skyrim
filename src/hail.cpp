@@ -14,7 +14,8 @@ void Hail() {
     logger::info("Hail initialized");
 
 
-  SKSE::GetTaskInterface()->AddTask([]() {
+  SKSE::GetTaskInterface()->AddTask([]() { // Im not sure what the consensus is on modifying game objects through a background thread is
+                                            // so I add task to main thread
         if (HailData::smallHailP) {
             HailData::smallHailP->data.gravity = g_SmallHailGravity;
             HailData::smallHailP->data.speed = g_SmallHailSpeed;
@@ -49,18 +50,17 @@ void Hail() {
             logger::warn("Missing hailSpellSM or hailMagicEffectSM, cannot modify effects.");
         }
    
-
      //   logger::info("b4 while loop");
     });
 
-    while (true) {
-      logger::info("while loop");
+    while (true) { 
+      logger::info("1st while loop start");
 
           if (HailData::hailGlobal) {
-          HailData::hailGlobal->value = 0.0;
+          HailData::hailGlobal->value = 0.0; // set global that acts as is hailing flag for dialogue conditions ect
       }
 
-        auto ui = RE::UI::GetSingleton();
+        auto ui = RE::UI::GetSingleton(); // the games still botting up prolly so wait a bit
         if (ui && ui->GameIsPaused()) {
             std::this_thread::sleep_for(std::chrono::seconds(15));  
             continue;
@@ -81,17 +81,19 @@ void Hail() {
                 continue; 
             }
 
-              logger::info("Lightning detected! Starting hail storm...");
-
+              
 
         if (RandomFloat() <= g_HailChance) {
 
+            logger::info("hail checks all cleared, starting to hail");
+
 
               if (HailData::hailGlobal) {
-                HailData::hailGlobal->value = 1.0;
+                HailData::hailGlobal->value = 1.0; // set the global
             }
 
-            auto activatorBaseObject = HailData::activatorObject->As<RE::TESBoundObject>();
+
+            auto activatorBaseObject = HailData::activatorObject->As<RE::TESBoundObject>(); // this invisible activator casts hail spells
 
             if (!activatorBaseObject) {
                 logger::error("Failed to cast ActivatorObject to TESBoundObject");
@@ -100,7 +102,7 @@ void Hail() {
 
             RE::TESObjectREFR* placedActivator = CreateActivator(player1, activatorBaseObject);
 
-            int intensity = RandomFromThree(5, 7, 9);
+            int intensity = RandomFromThree(5, 7, 9); //hail spells cast /ms
 
             if (g_PerformanceMode == 1) {
                 intensity = RandomFromThree(8, 10, 12);
@@ -111,9 +113,10 @@ void Hail() {
 
        auto lastPackageTime =
                 std::make_shared<std::chrono::steady_clock::time_point>(std::chrono::steady_clock::now());
-            auto var = std::make_shared<int>(3);
+            auto var = std::make_shared<int>(3); // start a delayed timer to make npcs react to hail. Then every 12 seconds after that,
+                                                //  reset the quest and fill aliases and give go home packages to npcs near player
 
-
+            auto stormStartTime = std::chrono::steady_clock::now(); // this is for a timer on the hail storm itself
 
             while (isLightning()) {
 
@@ -126,11 +129,9 @@ void Hail() {
                 }
 
               //    logger::info("in inner loop");
-              
-                // this mess is to deal with cgoing in interiors. I will fix this (on work time lol) 
-                // while loop to wait while they inside, when player leaves spawn a new activator to keep it hailing. 
+            
                 
-               
+               // must pauses or it will continue to hail during menus and glitch out
 
 if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("InventoryMenu") ||
                      ui->IsMenuOpen("MagicMenu") || ui->IsMenuOpen("DialogueMenu") || ui->IsMenuOpen("FavoritesMenu") ||
@@ -139,29 +140,32 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
                      ui->IsMenuOpen("LevelUpMenu") || ui->IsMenuOpen("MapMenu") || ui->IsMenuOpen("TutorialMenu"))) {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                     continue;
-                }
+                }    
 
-                if (ui && ui->GameIsPaused()) { // game is paused when player transitions from whiterun to whiterun exterior for example this ensures it continues haililng.
+
+                if (ui && ui->GameIsPaused()) { // game is paused when player transitions through loading screens. this ensures it continues haililng.
 
                        if (!placedActivator) {
                         logger::warn("placed activator is null or doesent exist");
+                           continue; // added this not sure why wasent there
                     }
 
                     placedActivator->Disable();
-                    placedActivator->SetDelete(true);
+                    placedActivator->SetDelete(true); // delete activator in old location
 
                //     logger::info("game is paused.");
+
                     while (ui->GameIsPaused()) {
-                  //      logger::info("game is paused waiting");
+                  //      logger::info("game is paused, waiting");
                          std::this_thread::sleep_for(std::chrono::milliseconds(350));
                          continue;
                     }
 
-
-                    placedActivator = CreateActivator(player2, activatorBaseObject);
+                    placedActivator = CreateActivator(player2, activatorBaseObject);  // create new one on other side of loadscreen.
                 }
 
-                 if (!IsPlayerInExteriorCell(player2)) {
+                 if (!IsPlayerInExteriorCell(player2)) { // check if player goes inside a interior, play indoor sound,
+                                                        // attach said sound to player, stop palying sounds if player goes to far underground 
                     logger::info("player is in interior");
 
                     if (!placedActivator) {
@@ -181,11 +185,11 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
                     audioManager->BuildSoundDataFromEditorID(soundHandle, editorID, 0x1A);
 
                     if (soundHandle.IsValid()) {
-                     //   logger::error("sound handle is valid start");
+                     //   logger::info("sound handle is valid start");
 
                         RE::NiPoint3 pos = player2->GetPosition();
                         soundHandle.SetPosition(pos);
-                     //   logger::error("set pos");
+                     //   logger::info("set pos of sound handle");
 
                         RE::NiAVObject* playerNode = player2->Get3D();
                         if (playerNode) {
@@ -204,10 +208,32 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
                         logger::error("Failed to build or play sound from descriptor");
                     }
 
-                    while (!IsPlayerInExteriorCell(player2)) {
-                        //  logger::warn("player is inside waiting loop");
+                    auto playerZPosInitial = player2->GetPositionZ();  //get position of player to track if should stop playing indoor hail sounds
 
-                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                    while (!IsPlayerInExteriorCell(player2)) {            // start loop to track player while inside. 
+                        //  logger::info("player is inside waiting loop");
+                      
+                       auto interiorLoopNow = std::chrono::steady_clock::now();
+
+                            if (interiorLoopNow - stormStartTime >= std::chrono::seconds(300)) {
+                            logger::info("timeout reached");
+                            break;
+                        }
+
+                        auto playerZPosInside = player2->GetPositionZ(); 
+
+                        
+                        if (playerZPosInitial - playerZPosInside >= 2000.0f) {  
+
+                              if (soundHandle.IsValid()) {
+                                logger::info("sound hadnle is valid emd");
+                                soundHandle.Stop();
+                            }
+                        
+                        }
+                        
+                        std::this_thread::sleep_for(std::chrono::seconds(1));
                     }
 
                     if (soundHandle.IsValid()) {
@@ -226,29 +252,31 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
                 if (now - *lastPackageTime >= std::chrono::seconds(*var)) {
 
                     if (!alreadySaid) {
-                        SayAOE(); 
+                        SayAOE();  // say hail reaction line short delay after begins hailing
                         alreadySaid = true; 
                     }
 
-                      QuestMaintnence(); 
-                    *lastPackageTime = now;
+                     // (self note should add to main task?)
+
+                      QuestMaintnence();  // reset quest to make npcs fill aliases and get go inside/ seek sheleter packages
+                    *lastPackageTime = now; 
                     *var = 15;
                 }
 
 
-                  if (now - *lastPackageTime >= std::chrono::seconds(300)) {
+                  if (now - stormStartTime >= std::chrono::seconds(240)) { // stop hail after a few mins
                     logger::info("timeout reached");
-                      return; 
+                      break; 
                 }
-
  
                 if (!HailData::hailSpell ||!HailData::hailSpellSM) {
                     logger::info("no hail spells");
+                    std::this_thread::sleep_for(std::chrono::seconds(1)); 
                     continue;
                 }
 
           auto spellToCast = (RandomFloat() < 33.0f) ? HailData::hailSpell : HailData::hailSpellSM;  
-                SKSE::GetTaskInterface()->AddTask([placedActivator, spellToCast, lastPackageTime, var]() {
+                SKSE::GetTaskInterface()->AddTask([placedActivator, spellToCast, lastPackageTime, var]() { // add to main task 
                    
 
              if (!placedActivator || placedActivator->IsDisabled() || placedActivator->IsDeleted() ||
@@ -261,7 +289,7 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
 
                     if (!playerInner)
                     {
-                        logger::info("no player inner");
+                         logger::info("no player inner");
                         return;  
                     }
 
@@ -282,6 +310,7 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(intensity));
             } 
+
              alreadySaid = false; 
             SKSE::GetTaskInterface()->AddTask([placedActivator]() {
 
@@ -289,7 +318,7 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
                     HailData::hailGlobal->value = 0.0;
                 }
 
-                QuestMaintnence(); 
+              //  QuestMaintnence(); 
 
                 if (!placedActivator) {
                     logger::warn("placed activator is null or doesent exist");

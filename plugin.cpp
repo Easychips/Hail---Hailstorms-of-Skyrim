@@ -1,4 +1,5 @@
 #include <functions.h>
+#include "HailMenu.h"
 
 namespace MyPlugin {
 
@@ -7,6 +8,13 @@ namespace MyPlugin {
         SetupLog();
 
         SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
+
+        auto* eventSink = UI::OurEventSink::GetSingleton();
+        auto* eventSourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+        eventSourceHolder->AddEventSink<RE::InputEvent>(eventSink);
+
+        UI::Register();
+
         return true;
     }
 }
