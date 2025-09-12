@@ -10,7 +10,7 @@ namespace MyPlugin {
         SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
 
         auto* eventSink = UI::OurEventSink::GetSingleton();
-        auto* eventSourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+        auto* eventSourceHolder = RE::BSInputDeviceManager::GetSingleton();
         eventSourceHolder->AddEventSink<RE::InputEvent>(eventSink);
 
         UI::Register();

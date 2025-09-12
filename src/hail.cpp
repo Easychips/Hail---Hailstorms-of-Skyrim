@@ -76,7 +76,7 @@ void Hail() {
             }
 
             if (!player1 || !IsPlayerInExteriorCell(player1) || !isLightning() ||
-                !IsInAppropriateWorldspace(player1, HailData::appropriateWorldSpaces) || sky->IsSnowing()) {
+                /* !IsInAppropriateWorldspace(player1, HailData::appropriateWorldSpaces) ||*/ sky->IsSnowing()) {
                 std::this_thread::sleep_for(std::chrono::seconds(weatherCheckInterval));
                 continue; 
             }
@@ -262,7 +262,6 @@ if (ui &&  (ui->IsItemMenuOpen() || ui->IsModalMenuOpen() || ui->IsMenuOpen("Inv
                     *lastPackageTime = now; 
                     *var = 15;
                 }
-
 
                   if (now - stormStartTime >= std::chrono::seconds(240)) { // stop hail after a few mins
                     logger::info("timeout reached");

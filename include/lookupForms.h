@@ -14,11 +14,11 @@ namespace HailData {
 
     extern RE::TESForm* activatorObject;
 
-    extern RE::FormID tamrielFormID;
+    /* extern RE::FormID tamrielFormID;
     extern RE::FormID solitudeWorld;
     extern RE::FormID markarthWorld;
     extern RE::FormID whiterunWorld;
-    extern RE::FormID riftenWorld;
+    extern RE::FormID riftenWorld; */
 
     extern std::vector<RE::FormID> appropriateWorldSpaces;
 

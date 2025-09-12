@@ -23,8 +23,8 @@ namespace HailData {
     RE::FormID whiterunWorld = 0x0001A26F;
     RE::FormID riftenWorld = 0x00016BB4; */
 
-    std::vector<RE::FormID> appropriateWorldSpaces = {tamrielFormID, solitudeWorld, markarthWorld, whiterunWorld,
-                                                      riftenWorld};
+    //std::vector<RE::FormID> appropriateWorldSpaces = {tamrielFormID, solitudeWorld, markarthWorld, whiterunWorld,
+                                                      //riftenWorld};
     RE::TESTopic* hailTopic = nullptr;
 
     RE::TESFaction* currentFollowerFaction = nullptr;
