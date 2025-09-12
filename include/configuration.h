@@ -1,4 +1,5 @@
 #pragma once
+
 namespace Configuration {
     namespace Example1 {
         inline int Number = 1;

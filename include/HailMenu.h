@@ -11,16 +11,21 @@ namespace UI {
 
     inline MENU_WINDOW hailMenuWindow;
 
-    struct OurEventSink : public RE::BSTEventSink<RE::InputEvent> {
-        OurEventSink() = default;
-        OurEventSink(const OurEventSink&&) = delete;
-        OurEventSink& operator=(const OurEventSink&) = delete;
-        OurEventSink& operator=(OurEventSink&&) = delete;
 
-        static OurEventSink* GetSingleton();
+};
 
-        RE::BSEventNotifyControl ProcessEvent(const RE::InputEvent* event,
-                                              RE::BSTEventSource<RE::InputEvent>* dispatcher) override;
-    };
 
+struct OurEventSink : public RE::BSTEventSink<RE::InputEvent> {
+    OurEventSink() = default;
+    OurEventSink(const OurEventSink&&) = delete;
+    OurEventSink& operator=(const OurEventSink&) = delete;
+    OurEventSink& operator=(OurEventSink&&) = delete;
+
+    static OurEventSink* GetSingleton() {
+        static OurEventSink singleton;
+        return &singleton;
+    }
+
+    RE::BSEventNotifyControl ProcessEvent(const RE::InputEvent* event,
+                                          RE::BSTEventSource<RE::InputEvent>*) override;
 };

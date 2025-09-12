@@ -5,31 +5,6 @@ namespace logger = SKSE::log; //gotta add this for logger usage
 namespace UI {
 
 
-
-OurEventSink* OurEventSink::GetSingleton() {
-        static OurEventSink singleton;
-        return &singleton;
-    }
-
-   RE::BSEventNotifyControl OurEventSink::ProcessEvent(const RE::InputEvent* event,
-                                                        RE::BSTEventSource<RE::InputEvent>*) {
-        if (event->eventType != RE::INPUT_EVENT_TYPE::kButton) {
-            return RE::BSEventNotifyControl::kContinue;
-        }
-
-        constexpr int openMenuKey = 72;  // H key
-
-        if (auto button = event->AsButtonEvent()) {
-            if (button->GetIDCode() == openMenuKey && button->IsDown()) {
-                UI::hailMenuWindow->IsOpen = !UI::hailMenuWindow->IsOpen;
-
-                logger::info("Toggled Hail Menu: {}", UI::hailMenuWindow->IsOpen);
-            }
-        }
-
-        return RE::BSEventNotifyControl::kContinue;
-    }
-
     void UI::Register() {
         SKSEMenuFramework::SetSection("Hail Menu");
         SKSEMenuFramework::AddSectionItem("Font Awesome", UI::Render);
@@ -79,4 +54,24 @@ OurEventSink* OurEventSink::GetSingleton() {
         ImGui::End();
     }
 
+
+
+
+
+}
+
+
+RE::BSEventNotifyControl OurEventSink::ProcessEvent(const RE::InputEvent* event,
+                                                    RE::BSTEventSource<RE::InputEvent>*) {
+    if (event->eventType != RE::INPUT_EVENT_TYPE::kButton)
+        return RE::BSEventNotifyControl::kContinue;
+
+    constexpr int openMenuKey = 72; // H key
+    if (auto button = event->AsButtonEvent()) {
+        if (button->GetIDCode() == openMenuKey && button->IsDown()) {
+            if (UI::hailMenuWindow)
+                UI::hailMenuWindow->IsOpen = !UI::hailMenuWindow->IsOpen;
+        }
+    }
+    return RE::BSEventNotifyControl::kContinue;
 }

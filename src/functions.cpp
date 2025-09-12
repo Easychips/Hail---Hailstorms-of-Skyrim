@@ -4,6 +4,7 @@
 #include "global.h"
 #include "hail.h"
 #include "lookupForms.h"
+#include "HailMenu.h"
 
 
 #include <spdlog/sinks/basic_file_sink.h>
@@ -269,7 +270,7 @@ void StartPlayerLogicThread() {
 
 
 void OnMessage(SKSE::MessagingInterface::Message* message) {
-     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
+     if (message->type == SKSE::MessagingInterface::kPostLoadGame) {
          //   auto dataHandler = RE::TESDataHandler::GetSingleton();
          //  auto lightningRodGlobal = dataHandler->LookupForm<RE::TESGlobal>(0x139, "Lightning Rod.esp");
 
@@ -279,9 +280,16 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
          //    else
          //       {
          IniParser(); 
+           logger::info("b4 iitialise thread");
          HailData::Initialize();
+         logger::info("b4 start thread");
          StartPlayerLogicThread();
          //   }
+         logger::info("after start thread");
+                 auto* eventSink = OurEventSink::GetSingleton();
+        auto* eventSourceHolder = RE::BSInputDeviceManager::GetSingleton();
+        eventSourceHolder->AddEventSink<RE::InputEvent>(eventSink);
+
 
          //  logger::info("PostPostLoadAttemptingtodispatch");
          /* auto* messaging = SKSE::GetMessagingInterface();
@@ -292,3 +300,5 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
          }*/
      }
  }
+
+
