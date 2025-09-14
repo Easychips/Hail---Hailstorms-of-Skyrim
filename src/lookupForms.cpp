@@ -36,8 +36,6 @@ namespace HailData {
     RE::TESFaction* preyFaction = nullptr;
     RE::TESFaction* farmAnimalsFaction = nullptr;
 
-   // RE::BGSSoundDescriptor* indoorHailLP = nullptr;  // 
-
     std::vector<RE::TESFaction*> factions;
 
     void Initialize() {
@@ -55,10 +53,7 @@ namespace HailData {
 
         hailQuest = dataHandler->LookupForm<RE::TESQuest>(0xD7D, "Hail.esp");
 
-       //  indoorHailLP = dataHandler->LookupForm<RE::BGSSoundDescriptor>(0x42D, "Hail.esp"); //
-
         hailTopic  = RE::TESForm::LookupByID<RE::TESTopic>(0x00011111);
-     
 
         activatorObject = RE::TESForm::LookupByEditorID("HailActivator");
 
@@ -69,8 +64,6 @@ namespace HailData {
         creatureFaction = dataHandler->LookupForm<RE::TESFaction>(0x00000013, "Skyrim.esm");
         preyFaction = dataHandler->LookupForm<RE::TESFaction>(0x0002E894, "Skyrim.esm");
         farmAnimalsFaction = dataHandler->LookupForm<RE::TESFaction>(0x0004E849, "Skyrim.esm");
-        
-        //currentFollowerFaction,
         
         factions = {
                     dragonPriestFaction,

@@ -23,14 +23,9 @@ namespace HailData {
     extern std::vector<RE::FormID> appropriateWorldSpaces;
 
     extern RE::TESQuest* hailQuest;
-    // extern RE::TESPackage* hailGoInnPackage;
-    // extern RE::TESPackage* hailGoHomePackage;
 
     // extern RE::BGSListForm* HailGoHomeIgnoreFormList;
-    //  extern RE::TESPackage* hailChildGoHomePackage;
     extern RE::TESTopic* hailTopic;
-
-   //extern RE::BGSSoundDescriptor* indoorHailLP;  //
 
     extern RE::BGSKeyword* executionerKeyword;
 

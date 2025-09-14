@@ -57,10 +57,10 @@ void Hail() {
       logger::info("1st while loop start");
 
           if (HailData::hailGlobal) {
-          HailData::hailGlobal->value = 0.0; // set global that acts as is hailing flag for dialogue conditions ect
+          HailData::hailGlobal->value = 0.0; // set global for for dialogue conditions ect
       }
 
-        auto ui = RE::UI::GetSingleton(); // the games still botting up prolly so wait a bit
+        auto ui = RE::UI::GetSingleton(); // Idk if this is needed. intent was to wait if player was still at main menu by this point.
         if (ui && ui->GameIsPaused()) {
             std::this_thread::sleep_for(std::chrono::seconds(15));  
             continue;
@@ -81,8 +81,6 @@ void Hail() {
                 continue; 
             }
 
-              
-
         if (RandomFloat() <= g_HailChance) {
 
             logger::info("hail checks all cleared, starting to hail");
@@ -90,7 +88,7 @@ void Hail() {
 
               if (HailData::hailGlobal) {
                 HailData::hailGlobal->value = 1.0; // set the global
-            }
+               }
 
 
             auto activatorBaseObject = HailData::activatorObject->As<RE::TESBoundObject>(); // this invisible activator casts hail spells

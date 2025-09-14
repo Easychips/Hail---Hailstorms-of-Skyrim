@@ -34,3 +34,6 @@ void OnMessage(SKSE::MessagingInterface::Message* message);
 
 void StartPlayerLogicThread();
 
+bool ProcessEvent(RE::InputEvent* const* evns);
+
+bool InstallHook();

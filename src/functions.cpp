@@ -5,6 +5,7 @@
 #include "hail.h"
 #include "lookupForms.h"
 #include "HailMenu.h"
+#include "HookBuilder.h"
 
 
 #include <spdlog/sinks/basic_file_sink.h>
@@ -207,8 +208,6 @@ void SayAOE() {
 
 }  
 
-
-
 void IniParser()
 {
     logger::info("In plugin load");
@@ -270,35 +269,78 @@ void StartPlayerLogicThread() {
 
 
 void OnMessage(SKSE::MessagingInterface::Message* message) {
-     if (message->type == SKSE::MessagingInterface::kPostLoadGame) {
-         //   auto dataHandler = RE::TESDataHandler::GetSingleton();
-         //  auto lightningRodGlobal = dataHandler->LookupForm<RE::TESGlobal>(0x139, "Lightning Rod.esp");
+     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
+        logger::info("k data loaded");
 
-         //  if (lightningRodGlobal) {
-         //        logger::info("LightningRod Detected");
-         //   }
-         //    else
-         //       {
          IniParser(); 
+
            logger::info("b4 iitialise thread");
+
          HailData::Initialize();
+
          logger::info("b4 start thread");
          StartPlayerLogicThread();
-         //   }
+        
          logger::info("after start thread");
-                 auto* eventSink = OurEventSink::GetSingleton();
-        auto* eventSourceHolder = RE::BSInputDeviceManager::GetSingleton();
-        eventSourceHolder->AddEventSink<RE::InputEvent>(eventSink);
-
 
          //  logger::info("PostPostLoadAttemptingtodispatch");
-         /* auto* messaging = SKSE::GetMessagingInterface();
+         auto* messaging = SKSE::GetMessagingInterface();
          if (messaging) {
              float hailChanceCopy = g_HailChance;
              constexpr std::uint32_t kHailChanceMessage = 0x4321ABCD;
              messaging->Dispatch(kHailChanceMessage, &hailChanceCopy, sizeof(hailChanceCopy), nullptr);
-         }*/
+         }
      }
  }
 
+constexpr int ToggleKey = 35;  // H key
 
+ bool ProcessEvent(RE::InputEvent* const* evns) {  // check for key presses to open menu
+
+    if (!*evns) return false;
+
+  //  logger::info("valid event returned");
+    for (RE::InputEvent* e = *evns; e; e = e->next) {
+        if (e->eventType.get() != RE::INPUT_EVENT_TYPE::kButton) continue;
+
+        const RE::ButtonEvent* a_event = e->AsButtonEvent();
+
+        if (a_event->GetDevice() != RE::INPUT_DEVICE::kKeyboard) continue;
+
+        if (a_event->GetIDCode() == ToggleKey && a_event->IsDown()) {
+
+            logger::info("button pressed! ");
+            UI::hailMenuWindow->IsOpen = !UI::hailMenuWindow->IsOpen;
+            return true;
+        }
+    }
+    return false;
+} 
+
+ bool InstallHook() {
+    auto& trampoline = SKSE::GetTrampoline();
+
+    REL::Relocation<std::uintptr_t> function{REL::RelocationID(67315, 68617, 0xC519E0)};
+
+    InputQueueHook::original = trampoline.write_call<5>(function.address() + REL::Relocate(0x7B, 0x7B, 0x81),
+                                                        InputQueueHook::thunk);  
+
+   /* write call returns original function and calls our thunk
+
+    function.address() -> base function pointer
+
+REL::Relocate(...) -> runtime-specific offset inside the function
+
+Add them = final patch address
+    
+    */
+    return true;
+}
+
+
+
+
+
+
+
+ 

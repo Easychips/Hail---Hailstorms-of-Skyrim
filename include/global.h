@@ -16,4 +16,3 @@ extern int g_PerformanceMode;
 
 
 extern bool alreadySaid;
-

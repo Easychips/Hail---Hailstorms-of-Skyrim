@@ -1,6 +1,6 @@
 #include <functions.h>
 #include "HailMenu.h"
-
+#include "HookBuilder.h"
 
 
 
@@ -12,8 +12,11 @@ namespace MyPlugin {
 
         SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
 
- 
-
+        UI::Register(); 
+        SKSE::AllocTrampoline(14);
+        InstallHook();
+   
+    logger::info("installed hooks");
         return true;
     }
 }
