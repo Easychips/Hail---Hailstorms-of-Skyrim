@@ -14,5 +14,6 @@ extern float g_LargeHailGravity;
 
 extern int g_PerformanceMode;
 
-
 extern bool alreadySaid;
+
+extern int ToggleKey;  // H key
