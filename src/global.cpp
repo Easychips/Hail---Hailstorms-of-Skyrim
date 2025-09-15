@@ -15,3 +15,5 @@ float g_LargeHailGravity = 1.9f;
 int g_PerformanceMode = 1;
 
 bool alreadySaid = false;
+
+int ToggleKey = 35;  // H key
