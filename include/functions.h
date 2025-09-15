@@ -1,10 +1,8 @@
 #pragma once
 
-
 #include <vector>
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
-
 
 namespace logger = SKSE::log;
 
@@ -12,7 +10,7 @@ bool IsPlayerInExteriorCell(RE::PlayerCharacter* player);
 
 void PapyrusSay(RE::TESObjectREFR* target, RE::TESTopic* toSay, RE::Character* toSpeakAs, bool playerHead);
 
-bool IsInAppropriateWorldspace(RE::PlayerCharacter* player, const std::vector<RE::FormID>& appropriateWorldSpaces);
+//bool IsInAppropriateWorldspace(RE::PlayerCharacter* player, const std::vector<RE::FormID>& appropriateWorldSpaces);
 
 bool isLightning();
 
@@ -37,3 +35,7 @@ void StartPlayerLogicThread();
 bool ProcessEvent(RE::InputEvent* const* evns);
 
 bool InstallHook();
+
+void IniParser(); 
+
+void SaveSettingsToIni(); 
