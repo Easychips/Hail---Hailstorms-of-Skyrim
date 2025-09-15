@@ -37,12 +37,12 @@ void __stdcall UI::RenderWindow() {
         // Use hidden internal title for ImGui tracking
         ImGui::Begin("##HailMenu", nullptr, ImGuiWindowFlags_NoTitleBar);
 
-        // --- Fake title with icon ---
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.8f, 1.0f, 1.0f)); 
-        FontAwesome::PushSolid();                                                 // Use your PushSolid
-        ImGui::Text("%s Hail Menu", FontAwesome::UnicodeToUtf8(0xf2dc).c_str());  // icon + text
-        FontAwesome::Pop();        
-        ImGui::PopStyleColor();  //change color backj
+       
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.8f, 1.0f, 1.0f));  // baby blue
+        FontAwesome::PushSolid();                                                 // style option
+        ImGui::Text("%s Hail Menu", FontAwesome::UnicodeToUtf8(0xf2dc).c_str());  // this is the frost icon in the hail menu
+        FontAwesome::Pop();                                                       // restores format we set earlier with pushsolid
+        ImGui::PopStyleColor();  //change color back 
         ImGui::Separator();                                                       // Optional separation from content
 
         // --- Menu bar ---
@@ -54,29 +54,29 @@ void __stdcall UI::RenderWindow() {
             ImGui::EndMenuBar();
         } */
 
-        if (ImGui::Button("Close Window")) UI::hailMenuWindow->IsOpen = false;
+         if (ImGui::Button("Close Window")) UI::hailMenuWindow->IsOpen = false;
 
-        // --- Window content (sliders etc.) ---
-        if (ImGui::SliderFloat("Small Hail Speed", &g_SmallHailSpeed, 0.0f, 2000.0f)) {
-            if (HailData::smallHailP) HailData::smallHailP->data.speed = g_SmallHailSpeed;
-        }
-        if (ImGui::SliderFloat("Small Hail Gravity", &g_SmallHailGravity, 0.0f, 10.0f)) {
-            if (HailData::smallHailP) HailData::smallHailP->data.gravity = g_SmallHailGravity;
-        }
+            ImGui::SameLine();
 
-        if (ImGui::SliderFloat("Large Hail Speed", &g_LargeHailSpeed, 0.0f, 2000.0f)) {
-            if (HailData::largeHailP) HailData::largeHailP->data.speed = g_LargeHailSpeed;
-        }
-        if (ImGui::SliderFloat("Large Hail Gravity", &g_LargeHailGravity, 0.0f, 10.0f)) {
-            if (HailData::largeHailP) HailData::largeHailP->data.gravity = g_LargeHailGravity;
-        }
+            if (ImGui::Button("Save")) {
+                SaveSettingsToIni(); 
 
-        if (ImGui::SliderFloat("Hail Chance", &g_HailChance, 0.0f, 100.0f)) {
+                if (ImGui::IsItemHovered()){
+                    ImGui::SetTooltip("Save Settings to Hail.ini file")
+                }
+            }
+
+          if (ImGui::Checkbox("Performance Mode", &g_PerformanceMode));
+
+           if (ImGui::SliderFloat("Hail Chance", &g_HailChance, 0.0f, 100.0f, %.1f%%)) {
             logger::info("Hail Chance changed to {}", g_HailChance);
-            // Optional: immediately apply to your hail system
+              if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("CTRL+ click to type value");
+            }
+            
         }
 
-        if (ImGui::SliderFloat("Large Hail Damage Multiplier", &g_LargeHailDamageMultiplier, 0.0f, 10.0f)) {
+        if (ImGui::SliderFloat("Hail Damage Multiplier", &g_LargeHailDamageMultiplier, 0.0f, 10.0f)) {
             if (HailData::hailSpell) {
                 for (auto& effect : HailData::hailSpell->effects) {
                     if (effect && effect->baseEffect == HailData::hailMagicEffect)
@@ -89,18 +89,65 @@ void __stdcall UI::RenderWindow() {
                         effect->effectItem.magnitude = g_LargeHailDamageMultiplier;
                 }
             }
+
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Damage of the hailstones, 4.0 = 5 damage per hit");
+        }
+
+    }
+
+        if (ImGui::CollapsingHeader("Advanced Settings", ImGuiTreeNodeFlags_None)) {
+     
+if (ImGui::SliderFloat("Hail Start Height", &fHeightHailFallsAt, 0.0f, 10000.0f, "%.1f")) {
+    if (HailData::largeHailP) HailData::largeHailP->data.startHeight = fHeightHailFallsAt; // or whatever field stores start height
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Height hail falls from (in-game units), default 3800.0");
+    }
+}
+
+
+if (ImGui::SliderFloat("Storm Radius", &fStormRadius, 0.0f, 10000.0f, "%.1f")) {
+    if (HailData::stormP) HailData::stormP->data.radius = fStormRadius; // or whatever field stores storm radius
+        if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Radius of the hail storm (in-game units), default 2800.0");
+        }
+    }
+   
+        if (ImGui::SliderFloat("Small Hail Speed", &g_SmallHailSpeed, 0.0f, 2000.0f, %.1f)) { //  &g_SmallHailSpeed, == pointer to the value  ie its memory address
+            if (HailData::smallHailP) HailData::smallHailP->data.speed = g_SmallHailSpeed;
+              if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("velocity of the hail stone, CTRL+ click to type value");
+            }
+              
+        }
+        if (ImGui::SliderFloat("Small Hail Gravity", &g_SmallHailGravity, 0.0f, 5.0f, %.1f)) {
+            if (HailData::smallHailP) HailData::smallHailP->data.gravity = g_SmallHailGravity;
+              if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("gravity of the hail stone, CTRL+ click to type value");
+            }
+        }
+
+        if (ImGui::SliderFloat("Large Hail Speed", &g_LargeHailSpeed, 0.0f, 2000.0f, %.1f)) {
+            if (HailData::largeHailP) HailData::largeHailP->data.speed = g_LargeHailSpeed;
+              if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("velocity of the hail stone, CTRL+ click to type value");
+            }
+        }
+        if (ImGui::SliderFloat("Large Hail Gravity", &g_LargeHailGravity, 0.0f, 5.0f, %.1f)) {
+            if (HailData::largeHailP) HailData::largeHailP->data.gravity = g_LargeHailGravity;
+              if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("gravity of the hail stone, CTRL+ click to type value");
+            }
         }
 
         ImGui::End();
     }
-
-
-
+  }
 }
 
 //pointer explanation
 /* float value = 42.0f;
 float* ptr = &value;  // ptr points to value
 *ptr = 50.0f;         // changes value to 50
-ptr = nullptr;
+ptr = nullptr;     // changes pointer itself not value
 */
