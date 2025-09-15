@@ -6,8 +6,6 @@
 #include "lookupForms.h"
 #include "HailMenu.h"
 #include "HookBuilder.h"
-
-
 #include <spdlog/sinks/basic_file_sink.h>
 
 namespace logger = SKSE::log;
@@ -46,7 +44,7 @@ void PapyrusSay(RE::TESObjectREFR* target, RE::TESTopic* toSay, RE::Character* t
     }
 }
 
-bool IsInAppropriateWorldspace(RE::PlayerCharacter* player, const std::vector<RE::FormID>& appropriateWorldSpaces) {
+/*bool IsInAppropriateWorldspace(RE::PlayerCharacter* player, const std::vector<RE::FormID>& appropriateWorldSpaces) {
     if (!player || appropriateWorldSpaces.empty()) {
         logger::error(" no player or world space list");
         return false;
@@ -66,7 +64,7 @@ bool IsInAppropriateWorldspace(RE::PlayerCharacter* player, const std::vector<RE
         }
     }
     return false;
-}
+} */ 
 
 
 bool isLightning() {
@@ -150,7 +148,6 @@ void QuestMaintnence() {
 
 void SayAOE() {
     logger::info("ApplyPackage started.");
- 
 
     auto processLists = RE::ProcessLists::GetSingleton();
 
@@ -192,7 +189,6 @@ void SayAOE() {
             continue;
         }
 
-
         auto actorAsObject = actor->As<RE::TESObjectREFR>();
 
         if (actorAsObject) {
@@ -200,12 +196,9 @@ void SayAOE() {
 
           if (RandomFloat() >= 50.0) {
                 PapyrusSay(actorAsObject, HailData::hailTopic, nullptr, false);
-          }
-       
-        }
     }
-
-
+  }
+ }
 }  
 
 void IniParser()
@@ -222,6 +215,10 @@ void IniParser()
             if (line.empty() || line[0] == ';') continue;
 
             try {
+                if (line.starts_with("iKeyCode=")) {
+                    ToggleKey = std::stof(line.substr(strlen("iKeyCode=")));
+                    logger::info("INI override: fHailChance = {}", ToggleKey);
+                }
                 if (line.starts_with("fHailChance=")) {
                     g_HailChance = std::stof(line.substr(strlen("fHailChance=")));
                     logger::info("INI override: fHailChance = {}", g_HailChance);
@@ -252,21 +249,62 @@ void IniParser()
                 }
             } catch (const std::exception& e) {
                 logger::error("Failed to parse INI line [{}]: {}", line, e.what());
-
-                    
-            }
-           
-        }
+          }       
+       }
     }
-  
- }
+}
 
+SaveSettingsToIni(){
+
+   logger::info("In plugin load");
+
+    std::ifstream iniFile("Data\\SKSE\\Plugins\\Hail.ini");
+    if (!iniFile.is_open()) {
+        logger::warn("INI file not found or failed to open, using defaults.");
+    } else {
+        std::string line;
+        std::string newIniFile; 
+        while (std::getline(iniFile, line)) {
+           
+          
+            line.erase(0, line.find_first_not_of(" \t"));
+            try {                    
+                                                 //string&  = referece ie the function sees original string, no copy is made
+            auto replaceValue = [&](const std::string& key, auto value) { 
+                if (line.starts_with(key)) {
+               auto pos = line.find("=");
+                line = line.substr(0, pos +1) + std::to_string(value); 
+                  }
+                }; 
+
+            replaceValue("fHailChance=", g_HailChance);
+            replaceValue("fHailDamageMultiplier=", g_LargeHailDamageMultiplier);
+            replaceValue("fLargeHailGravity=", g_LargeHailGravity);
+            replaceValue("fLargeHailSpeed=", g_LargeHailSpeed);
+            replaceValue("fSmallHailSpeed=", g_SmallHailSpeed);
+            replaceValue("fSmallHailGravity=", g_SmallHailGravity);
+            replaceValue("fHeightHailFallsAt=", fHeight);
+            replaceValue("bPerformanceMode=", g_PerformanceMode);
+            replaceValue("fStormRadius=", fPOSRandom);
+                    
+            } catch (const std::exception& e) {
+                logger::error("Failed to parse INI line [{}]: {}", line, e.what());
+            }     
+             newIniFile += line + "\n"; // have to add the new line  
+        }
+
+        std::ofstream outFile("Data\\SKSE\\Plugins\\Hail.ini", std::ios::trunc); // trunc just cleares the old ini file. 
+        outFile << newIniFile;
+        outFile.close();  
+        
+    }  
+
+} 
 
 void StartPlayerLogicThread() {
      std::thread t(Hail);
      t.detach();
  }
-
 
 void OnMessage(SKSE::MessagingInterface::Message* message) {
      if (message->type == SKSE::MessagingInterface::kDataLoaded) {
@@ -284,16 +322,14 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
          logger::info("after start thread");
 
          //  logger::info("PostPostLoadAttemptingtodispatch");
-         auto* messaging = SKSE::GetMessagingInterface();
+        /* auto* messaging = SKSE::GetMessagingInterface();
          if (messaging) {
              float hailChanceCopy = g_HailChance;
              constexpr std::uint32_t kHailChanceMessage = 0x4321ABCD;
              messaging->Dispatch(kHailChanceMessage, &hailChanceCopy, sizeof(hailChanceCopy), nullptr);
-         }
+         } */
      }
  }
-
-constexpr int ToggleKey = 35;  // H key
 
  bool ProcessEvent(RE::InputEvent* const* evns) {  // check for key presses to open menu
 
@@ -329,18 +365,10 @@ constexpr int ToggleKey = 35;  // H key
 
     function.address() -> base function pointer
 
-REL::Relocate(...) -> runtime-specific offset inside the function
+    REL::Relocate(...) -> runtime-specific offset inside the function
 
-Add them = final patch address
+    Add them = final patch address */
     
-    */
+    
     return true;
 }
-
-
-
-
-
-
-
- 
